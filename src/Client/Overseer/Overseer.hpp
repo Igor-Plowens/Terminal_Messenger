@@ -29,12 +29,9 @@ private:
 
 
 
-
-    std::mutex queueMut;
-    std::condition_variable cv;
+    ftxui::ScreenInteractive &screen;
     Queue eventQueue;
 
-    ftxui::ScreenInteractive &screen;
 
 
     Connection connection;

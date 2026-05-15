@@ -26,16 +26,13 @@
 
 class Queue {
 public:
-
-    Queue(std::mutex &mut, std::condition_variable &cv): mut(mut), cv(cv) {}
+    Queue(ftxui::ScreenInteractive &screen): screen(screen) {}
 
 
     void pushBack(const InformationUnit &item) {
-        {
-            std::lock_guard lock(mut);
-            queue.push_back(item);
-        }
-        cv.notify_all();
+        std::lock_guard lock(mut);
+        queue.push_back(item);
+        screen.PostEvent(ftxui::Event::Custom);
     }
 
 
@@ -48,13 +45,16 @@ public:
         return queue.empty();
     }
 
-    std::deque<InformationUnit> &getDeq() {
-        return queue;
+    void getQueue(std::deque<InformationUnit> &inputQueue) {
+        std::lock_guard lck(mut);
+        inputQueue = std::move(queue);
+        queue.clear();
     }
 
 
 private:
     std::deque<InformationUnit> queue;
-    std::mutex &mut;
-    std::condition_variable &cv;
+    std::mutex mut;
+
+    ftxui::ScreenInteractive &screen;
 };

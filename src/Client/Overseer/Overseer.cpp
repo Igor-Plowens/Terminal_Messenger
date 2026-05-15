@@ -3,7 +3,7 @@
 #include "Parsing/parsing.hpp"
 
 
-Overseer::Overseer(int sockFd, ftxui::ScreenInteractive &screen): connection(sockFd), pageManager(eventQueue), eventQueue(queueMut, cv), screen(screen){}
+Overseer::Overseer(int sockFd, ftxui::ScreenInteractive &screen): eventQueue(screen), connection(sockFd), pageManager(eventQueue), screen(screen){}
 
 
 void Overseer::networkReader() {
@@ -30,11 +30,12 @@ void Overseer::networkReader() {
 }
 
 void Overseer::networkWriter() {
-    InformationUnit info;
+
     while (true) {
+        InformationUnit info;
         {
             std::unique_lock<std::mutex> lock(writeQueueMut);
-            cv.wait(lock, [this]() { return !writeQueue.empty(); });
+            writeQueueCV.wait(lock, [this]() { return !writeQueue.empty(); });
             info = writeQueue.front();
             writeQueue.pop_front();
         }
@@ -53,26 +54,24 @@ void Overseer::handleQueue() {
 
 
     std::deque<InformationUnit> units;
-    while (true) {
-        {
-            std::unique_lock<std::mutex> lock(queueMut);
-            cv.wait(lock, [this]() { return !eventQueue.isEmpty(); });
-            units.swap(eventQueue.getDeq());
-        }
-        myFile << "HANDLE QUEUE WOKEN UP\n";
-        myFile.flush();
-        for (const auto &unit : units) {
-            switch (unit.opcode) {
-                case LOGIN:
-                case REGISTER:
-                    sendInfo(unit);
-                    break;
-                default:
-                    reactToInfo(unit);
-            }
-        }
-        units.clear();
+    {
+
+        eventQueue.getQueue(units);
     }
+    myFile << "HANDLE QUEUE WOKEN UP\n";
+    myFile.flush();
+    for (const auto &unit : units) {
+        switch (unit.opcode) {
+            case LOGIN:
+            case REGISTER:
+                sendInfo(unit);
+                break;
+            default:
+                reactToInfo(unit);
+        }
+    }
+    units.clear();
+
 
 }
 
@@ -122,7 +121,7 @@ void Overseer::reactToInfo(const InformationUnit &unit) {
         }
     }
     myFile.close();
-    screen.PostEvent(ftxui::Event::Custom);
+    //screen.PostEvent(ftxui::Event::Custom);
 }
 
 

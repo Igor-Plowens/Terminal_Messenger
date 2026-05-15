@@ -34,8 +34,15 @@ int main(int argc, char** argv) {
     std::thread t2(&Overseer::networkWriter, &ovs);
     std::thread t3(&Overseer::handleQueue, &ovs);
 
+    auto catcher = ftxui::CatchEvent(ovs.getTab(), [&ovs](ftxui::Event ev) {
+        if (ev == ftxui::Event::Custom) {
+            ovs.handleQueue();
+            return true;
+        }
+        return false;
+    });
 
-    screen.Loop(ovs.getTab());
+    screen.Loop(catcher);
 
     t1.join();
     t2.join();
