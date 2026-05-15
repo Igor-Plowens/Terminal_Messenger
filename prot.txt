@@ -1,0 +1,59 @@
+Protoccol
+uint32   uint16      ...
+[size]  [opcode]  [content]
+
+
+
+LOGGING:
+
+         login:
+      [size][opcode] [sizeof user] [user] [sizeof password] [password]
+
+         login success [outgoing]
+      [size][opcode] [user_id] [sizeof user] [username]
+
+         login fail [outgoing]
+      [size][opcode]
+
+
+         register:
+      [size][opcode] [sizeof user] [user] [sizeof password] [password]
+
+         register success [outgoing]
+      [size][opcode] [user_id] [sizeof user] [username]
+
+         register fail [outgoing]
+      [size][opcode]
+
+
+MESSEGING
+
+         send message (client->serv)
+      [size][opcode][id_dest][length][mess]
+
+        send message by name
+      [size][opcode][name_dest_len][name_dest][length][mess]
+
+         relay message (serv->client)
+      [size][opcode][id_author][id_mess][len][mess]
+
+
+        relay message by name (serv->client)
+      [size][opcode][len_author_name][author_name][id_mess][len][mess]
+
+
+         get further 10 messages
+      [size][opcode][destination_user id][last_message_id] (0 if entered a conversation)
+
+         get latest 10 messages
+      [size][opcode][destination_user id]
+
+         relay further 10 messages
+      [size][opcode][interlocutor_id][number_of_elements] [id_message1] [author_bool][len message][message]
+
+         relay latest 10 messages (new convo)
+      [size][opcode][interlocutor_id][number_of_elements] [id_message1] [author_bool][len message][message]
+
+
+
+
