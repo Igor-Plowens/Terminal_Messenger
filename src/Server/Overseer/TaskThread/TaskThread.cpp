@@ -120,11 +120,18 @@ std::optional<TaskOutgoing> TaskManager::processSendMessageByName(const TaskInco
     int64_t messageId = db.update_message(*task.author.userId, recipientId, message);
 
     TaskOutgoing res;
-    ClientData data;
-    data.connectionId = recipientId; //redundant
-    data.username = recipient;
+    ClientData data1;
+    data1.userId = recipientId; //redundant
+    data1.username = recipient;
 
-    res.recipients.push_back(data);
+    ClientData data2;
+    data2.userId = task.author.userId;
+    data2.username = task.author.username;
+    data2.connectionId = task.author.connectionId;
+
+
+    res.recipients.push_back(data1);
+    res.recipients.push_back(data2);
     res.information.opcode = RELAY_MESSAGE_BY_NAME;
     res.information.append_val(*task.author.username);
     res.information.append_val(static_cast<ID_t>(messageId));
