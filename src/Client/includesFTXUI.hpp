@@ -8,5 +8,7 @@ enum PageType {
     REGISTER_PAGE = 1,
     LOGIN_PAGE = 2,
     LOADING_PAGE = 3,
-    MENU = 4
+    MENU = 4,
+    DM_PAGE
 };
+

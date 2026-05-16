@@ -1,4 +1,5 @@
 #pragma once
+#include "UI/DmPage/DmPage.hpp"
 #include "UI/LoadingPage/LoadingPage.hpp"
 #include "UI/LoginPage/LoginPage.hpp"
 #include "UI/RegisterPage/RegisterPage.hpp"
@@ -13,6 +14,8 @@ public:
 
     PageManager(Queue &queue);
 
+
+
     ftxui::Component getTab();
 
 
@@ -23,6 +26,13 @@ public:
     void forwardFeedbackString(const std::string &str);
 
 
+    void forwardDmMessage(DmMessage &&dmMessage);
+
+    std::string getDmRecipient();
+
+    std::string nickname;
+
+
 
 private:
 
@@ -31,11 +41,13 @@ private:
     StartingPage startingPage;
     RegisterPage registerPage;
     LoginPage loginPage;
-    MenuPage menuPage;
     LoadingPage loadingPage;
+    MenuPage menuPage;
+    DmPage dmPage;
 
 
     ftxui::Component container;
+
 };
 
 

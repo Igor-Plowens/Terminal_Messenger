@@ -28,8 +28,6 @@ void Overseer::networkReader() {
             eventQueue.pushBack(info);
             return;
         }
-        myFile << "PARSING INFORMATION\n";
-        myFile.flush();
         InformationUnit unit = Parsing::parse_buffer(connection.relinquish_buff());
         myFile << "PARSED OPCODE: " << unit.opcode << "\n";
         myFile.flush();
@@ -67,8 +65,6 @@ void Overseer::handleQueue() {
 
         eventQueue.getQueue(units);
     }
-    myFile << "HANDLE QUEUE WOKEN UP\n";
-    myFile.flush();
     for (const auto &unit : units) {
         switch (unit.opcode) {
             case CLIENT_SHUTDOWN: {
@@ -80,6 +76,10 @@ void Overseer::handleQueue() {
             case REGISTER:
                 sendInfo(unit);
                 reactToInfo(unit);
+                break;
+
+            case SEND_MESSAGE_BY_NAME:
+                sendInfo(unit);
                 break;
             default:
                 reactToInfo(unit);
@@ -111,6 +111,7 @@ void Overseer::reactToInfo(const InformationUnit &unit) {
             break;
 
 
+
         case REGISTER_FAILURE:
         case LOGIN_FAIL:
             pageManager.forwardFeedbackString("Login/Register failed");
@@ -118,9 +119,11 @@ void Overseer::reactToInfo(const InformationUnit &unit) {
             break;
 
 
+
         case LOGIN_SUCCESS:
         case REGISTER_SUCCESS: {
             //pageManager.forwardFeedbackString("Input data"); todo: add if logout and login?
+            pageManager.nickname = std::get<std::string>(unit.data[1]);
             pageManager.setSelector(MENU);
             myFile << "SET TO MENU\n" << std::endl;
             myFile.flush();
@@ -144,13 +147,50 @@ void Overseer::reactToInfo(const InformationUnit &unit) {
             myFile.flush();
             break;
         }
-        default: {
-            myFile << "BULLSHIT\n" << std::endl;
+        case GO_TO_MENU_PAGE: {
+            pageManager.setSelector(MENU);
+            break;
+        }
+
+        case GO_TO_DM_PAGE: {
+            myFile << "GO TO DM PAGE\n";
             myFile.flush();
+            pageManager.setSelector(DM_PAGE);
+            break;
+        }
+        case RELAY_MESSAGE_BY_NAME: {
+            myFile << "RELAY MESSAGE BY NAME BEING PARSED\n";
+            myFile.flush();
+            std::string author = std::get<std::string>(unit.data[0]);
+            DmMessage message;
+            if (author == pageManager.nickname) {
+                message.isMine = true;
+                myFile << "MESSAGE IS MINE\n";
+                myFile.flush();
+            }
+            else if (author == pageManager.getDmRecipient()) {
+                myFile << "MESSAGE IS NOT MINE BUT VALID\n";
+                myFile.flush();
+                message.isMine = false;
+            }
+            else {
+                myFile << "MESSAGE IS STALE\n";
+                myFile.flush();
+                break; //stale message
+            }
+
+            message.messageId = std::get<ID_t>(unit.data[1]);
+            message.content = std::get<std::string>(unit.data[2]);
+            pageManager.forwardDmMessage(std::move(message));
+            break;
+        }
+
+        default: {
+            throw std::runtime_error("Unknown opcode [reactToInfo]");
         }
     }
     myFile.close();
-    //screen.PostEvent(ftxui::Event::Custom);
+    //screen.PostEvent(ftxui::Event::Custom); todo: 99% should be removed completely
 }
 
 

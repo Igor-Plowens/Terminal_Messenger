@@ -16,6 +16,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(ftxui)
 
 
+
+
 add_executable(server
         src/Server/TaskIncoming.hpp
         src/Server/Connection/Connection.cpp
@@ -63,6 +65,8 @@ add_executable(client
         src/Client/UI/MenuPage/MenuPage.hpp
         src/Client/UI/LoadingPage/LoadingPage.cpp
         src/Client/UI/LoadingPage/LoadingPage.hpp
+        src/Client/UI/DmPage/DmPage.cpp
+        src/Client/UI/DmPage/DmPage.hpp
 )
 
 target_include_directories(server

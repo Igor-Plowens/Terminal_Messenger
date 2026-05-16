@@ -47,7 +47,7 @@ private:
     std::condition_variable writeQueueCV;
 
 
-    std::ofstream myFile{"DEBUG_THIS.txt"};
+    std::ofstream myFile{"/dev/pts/2"};
 
     bool shutdownFlag = false;
 };

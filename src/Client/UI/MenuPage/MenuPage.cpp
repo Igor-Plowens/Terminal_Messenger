@@ -7,10 +7,25 @@ MenuPage::MenuPage(Queue &queue): eventQueue(queue) {
         eventQueue.pushBack(act);
     });
 
-    container = ftxui::Container::Vertical({leaveButton});
+
+    dmDestinationInput = ftxui::Input(&dmDestination, "Recipient name");
+    enterDmButton = ftxui::Button("Enter dms", [this]() {
+        InformationUnit act;
+        act.opcode = GO_TO_DM_PAGE;
+
+        //dmDestination = "";
+        eventQueue.pushBack(act);
+    });
+
+
+    container = ftxui::Container::Vertical({dmDestinationInput, enterDmButton, leaveButton});
 }
 
 
 ftxui::Component MenuPage::getContainer() {
     return container;
+}
+
+std::string MenuPage::getChosenRecipient() {
+    return dmDestination;
 }

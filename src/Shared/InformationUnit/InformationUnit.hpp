@@ -28,6 +28,8 @@ enum Opcode: std::uint16_t{
     GO_TO_STARTING_PAGE,
     GO_TO_LOGIN_PAGE,
     GO_TO_REGISTER_PAGE,
+    GO_TO_MENU_PAGE,
+    GO_TO_DM_PAGE,
 
 
     BULLSHIT = 67
