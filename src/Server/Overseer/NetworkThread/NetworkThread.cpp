@@ -155,13 +155,22 @@ void NetworkThread::loopOverTasks(const std::vector<TaskOutgoing> &tasks) {
         std::printf("Task of opcode: %d is being distributed [loopOverTasks]\n", task.information.opcode);
         for (auto &destinationAddress: task.recipients) {
             auto found = clients.find(destinationAddress);
-            if (found != clients.end()) {
-                std::printf("Task is being distributed to sockid: %d\n", (*found).second->conn.get_sock());
-                (*found).second->conn.assign_write(Parsing::imprint_buffer(task.information));
-                epoll_manager.giveEpollout((*found).second->conn.get_sock());
-            }
+
+            if (found == clients.end()) continue;
+
+            std::printf("Task is being distributed to sockid: %d\n", (*found).second->conn.get_sock());
+            (*found).second->conn.assign_write(Parsing::imprint_buffer(task.information));
+            epoll_manager.giveEpollout((*found).second->conn.get_sock());
+
             if (task.information.opcode == LOGIN_SUCCESS || task.information.opcode == REGISTER_SUCCESS) {
                 (*found).second->setUserInfo(std::get<ID_t>(task.information.data[0]), std::get<std::string>(task.information.data[1]));
+                //todo: FIX THIS MESS
+                ClientData data = found->first;
+                data.userId = std::get<ID_t>(task.information.data[0]);
+                data.username = std::get<std::string>(task.information.data[1]);
+                std::shared_ptr<Client> ptr = found->second;
+                clients.erase(destinationAddress);
+                clients.insert({data, ptr});
             }
         }
     }
