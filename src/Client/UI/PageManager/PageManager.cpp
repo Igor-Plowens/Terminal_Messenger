@@ -1,8 +1,8 @@
 #include "PageManager.hpp"
 
 
-PageManager::PageManager(Queue &queue): startingPage(queue), registerPage(queue), loginPage(queue) {
-    container = ftxui::Container::Tab({startingPage.getContainer(), registerPage.getContainer(), loginPage.getContainer(), menuPage.getContainer()}, &selector);
+PageManager::PageManager(Queue &queue): startingPage(queue), registerPage(queue), loginPage(queue), loadingPage(queue), menuPage(queue) {
+    container = ftxui::Container::Tab({startingPage.getContainer(), registerPage.getContainer(), loginPage.getContainer(), loadingPage.getRenderer(), menuPage.getContainer()}, &selector);
 }
 
 

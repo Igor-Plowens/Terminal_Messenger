@@ -32,8 +32,6 @@ int main(int argc, char** argv) {
 
     std::thread t1(&Overseer::networkReader, &ovs);
     std::thread t2(&Overseer::networkWriter, &ovs);
-    std::thread t3(&Overseer::handleQueue, &ovs);
-
     auto catcher = ftxui::CatchEvent(ovs.getTab(), [&ovs](ftxui::Event ev) {
         if (ev == ftxui::Event::Custom) {
             ovs.handleQueue();
@@ -43,10 +41,13 @@ int main(int argc, char** argv) {
     });
 
     screen.Loop(catcher);
-
-    t1.join();
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::printf("Screen loop ended\n");
     t2.join();
-    t3.join();
+    std::printf("network writer joined\n");
+    t1.join();
+    std::printf("network reader joined\n");
+
     return 0;
 }
 

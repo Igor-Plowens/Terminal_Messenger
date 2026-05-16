@@ -1,4 +1,5 @@
 #pragma once
+#include "UI/LoadingPage/LoadingPage.hpp"
 #include "UI/LoginPage/LoginPage.hpp"
 #include "UI/RegisterPage/RegisterPage.hpp"
 #include "UI/StartingPage/StartingPage.hpp"
@@ -13,7 +14,8 @@ public:
         STARTING_PAGE = 0,
         REGISTER_PAGE = 1,
         LOGIN_PAGE = 2,
-        MENU = 3
+        LOADING_PAGE = 3,
+        MENU = 4
     };
 
     PageManager(Queue &queue);
@@ -33,6 +35,7 @@ private:
     RegisterPage registerPage;
     LoginPage loginPage;
     MenuPage menuPage;
+    LoadingPage loadingPage;
 
 
     ftxui::Component container;

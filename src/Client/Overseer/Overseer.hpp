@@ -11,6 +11,8 @@ class Overseer {
 public:
     Overseer(int sockFd, ftxui::ScreenInteractive &screen);
 
+    void setShutdown();
+
     void networkReader();
     void networkWriter();
 
@@ -46,4 +48,6 @@ private:
 
 
     std::ofstream myFile{"DEBUG_THIS.txt"};
+
+    bool shutdownFlag = false;
 };

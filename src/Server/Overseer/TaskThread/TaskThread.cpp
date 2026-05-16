@@ -61,6 +61,8 @@ std::optional<std::vector<TaskOutgoing>> TaskManager::processTasks() {
 
 
 std::optional<TaskOutgoing> TaskManager::processLogin(const TaskIncoming &task) {
+    std::this_thread::sleep_for(std::chrono::seconds(5)); //todo: remove
+
     std::printf("In processLogin [processLogin]\n");
     std::printf("Author of this task: %d\n", task.author.connectionId);
     std::string nickname = std::get<std::string>(task.information.data[0]);

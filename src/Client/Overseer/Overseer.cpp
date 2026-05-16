@@ -6,6 +6,13 @@
 Overseer::Overseer(int sockFd, ftxui::ScreenInteractive &screen): eventQueue(screen), connection(sockFd), pageManager(eventQueue), screen(screen){}
 
 
+void Overseer::setShutdown() {
+    shutdownFlag = true;
+    shutdown(connection.getSocket(), SHUT_RDWR);
+    close(connection.getSocket());
+    writeQueueCV.notify_all();
+}
+
 void Overseer::networkReader() {
 
     while (true) {
@@ -14,6 +21,7 @@ void Overseer::networkReader() {
         myFile.flush();
         if (res == Connection::FAILED) {
             myFile << "CONNECTION ERROR\n";
+            if (shutdownFlag) return;
             myFile.flush();
             InformationUnit info;
             info.opcode = CLIENT_SHUTDOWN;
@@ -35,7 +43,8 @@ void Overseer::networkWriter() {
         InformationUnit info;
         {
             std::unique_lock<std::mutex> lock(writeQueueMut);
-            writeQueueCV.wait(lock, [this]() { return !writeQueue.empty(); });
+            writeQueueCV.wait(lock, [this]() { return !writeQueue.empty() || shutdownFlag; });
+            if (shutdownFlag) return;
             info = writeQueue.front();
             writeQueue.pop_front();
         }
@@ -62,9 +71,15 @@ void Overseer::handleQueue() {
     myFile.flush();
     for (const auto &unit : units) {
         switch (unit.opcode) {
+            case CLIENT_SHUTDOWN: {
+                screen.Exit();
+                setShutdown();
+                return;
+            }
             case LOGIN:
             case REGISTER:
                 sendInfo(unit);
+                reactToInfo(unit);
                 break;
             default:
                 reactToInfo(unit);
@@ -87,9 +102,15 @@ void Overseer::sendInfo(const InformationUnit &unit) {
 }
 
 void Overseer::reactToInfo(const InformationUnit &unit) {
-    myFile << " REACT TO INFO CALLED\n";
+    myFile << "REACT TO INFO CALLED\n";
     myFile.flush();
     switch (unit.opcode) {
+        case LOGIN:
+        case REGISTER:
+            pageManager.setSelector(PageManager::LOADING_PAGE);
+            break;
+
+
         case LOGIN_SUCCESS:
         case REGISTER_SUCCESS: {
             pageManager.setSelector(PageManager::MENU);

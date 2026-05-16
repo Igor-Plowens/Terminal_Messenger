@@ -61,6 +61,8 @@ add_executable(client
         src/Client/Overseer/Overseer.hpp
         src/Client/UI/MenuPage/MenuPage.cpp
         src/Client/UI/MenuPage/MenuPage.hpp
+        src/Client/UI/LoadingPage/LoadingPage.cpp
+        src/Client/UI/LoadingPage/LoadingPage.hpp
 )
 
 target_include_directories(server

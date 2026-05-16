@@ -5,7 +5,6 @@
 #include "condition_variable"
 #include "mutex"
 
-
 // template<class T>
 // class Queue {
 // public:
@@ -30,8 +29,10 @@ public:
 
 
     void pushBack(const InformationUnit &item) {
-        std::lock_guard lock(mut);
-        queue.push_back(item);
+        {
+            std::lock_guard lock(mut);
+            queue.push_back(item);
+        }
         screen.PostEvent(ftxui::Event::Custom);
     }
 

@@ -11,14 +11,14 @@ Connection::~Connection() {
 
 Connection::SockResult Connection::performRead() {
     int test = recv(sock, readBuff.data(), sizeof(std::uint32_t), 0);
-    if (test == -1) {
+    if (test == -1 || test == 0) {
         return FAILED;
     }
     const Byte *ptr = (Byte *)readBuff.data();
     std::uint32_t toRead  = Parsing::parse_int<std::uint32_t>(ptr);
 
     test = recv(sock, readBuff.data(), toRead, 0);
-    if (test == -1) {
+    if (test == -1 || test == 0) {
         return FAILED;
     }
     return SUCCCESFUL;

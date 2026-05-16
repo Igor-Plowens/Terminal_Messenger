@@ -1,15 +1,18 @@
 #pragma once
 #include "includesFTXUI.hpp"
+#include "Queue/Queue.hpp"
 
 class MenuPage {
 public:
-    MenuPage();
+    MenuPage(Queue &eventQueue);
 
     ftxui::Component getContainer();
 
 
 private:
-    ftxui::Component button;
+    Queue &eventQueue;
+
+    ftxui::Component leaveButton;
 
     ftxui::Component container;
 };
