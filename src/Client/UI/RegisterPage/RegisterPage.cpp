@@ -20,10 +20,26 @@ RegisterPage::RegisterPage(Queue &queue): eventQueue(queue) {
     });
 
     container = ftxui::Container::Vertical({inputUsername, inputPassword, sendButton, backToStartingButton});
+
+    renderer = ftxui::Renderer(container, [this]() {
+        return ftxui::vbox({
+            ftxui::paragraphAlignCenter(feedback),
+            container->Render()
+        });
+    });
 }
 
 
-ftxui::Component RegisterPage::getContainer() {
-    return container;
+ftxui::Component RegisterPage::getRenderer() {
+    return renderer;
+
 }
+
+void RegisterPage::setFeedback(const std::string &text) {
+    feedback = text;
+}
+
+// ftxui::Component RegisterPage::getContainer() {
+//     return container;
+// }
 

@@ -27,11 +27,26 @@ LoginPage::LoginPage(Queue &queue): eventQueue(queue){
 
     container = ftxui::Container::Vertical({inputUsername, inputPassword, sendButton, backToStartingButton});
 
+    renderer = ftxui::Renderer(container, [this]() {
+        return ftxui::vbox({
+            ftxui::paragraphAlignCenter(feedback),
+            container->Render()
+        });
+    });
+
 }
 
+ftxui::Component LoginPage::getRenderer() {
+    return renderer;
+}
 
-ftxui::Component LoginPage::getContainer() {
-    return container;
+//
+// ftxui::Component LoginPage::getContainer() {
+//     return container;
+// }
+
+void LoginPage::setFeedback(const std::string &text) {
+    feedback = text;
 }
 
 

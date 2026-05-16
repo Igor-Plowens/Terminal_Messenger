@@ -107,31 +107,38 @@ void Overseer::reactToInfo(const InformationUnit &unit) {
     switch (unit.opcode) {
         case LOGIN:
         case REGISTER:
-            pageManager.setSelector(PageManager::LOADING_PAGE);
+            pageManager.setSelector(LOADING_PAGE);
+            break;
+
+
+        case REGISTER_FAILURE:
+        case LOGIN_FAIL:
+            pageManager.forwardFeedbackString("Login/Register failed");
+            pageManager.setSelector(pageManager.getLoadingsMethodOfEntry());
             break;
 
 
         case LOGIN_SUCCESS:
         case REGISTER_SUCCESS: {
-            pageManager.setSelector(PageManager::MENU);
+            pageManager.setSelector(MENU);
             myFile << "SET TO MENU\n" << std::endl;
             myFile.flush();
             break;
         }
         case GO_TO_STARTING_PAGE: {
-            pageManager.setSelector(PageManager::STARTING_PAGE);
+            pageManager.setSelector(STARTING_PAGE);
             myFile << "SET TO STARTING PAGE\n" << std::endl;
             myFile.flush();
             break;
         }
         case GO_TO_LOGIN_PAGE: {
-            pageManager.setSelector(PageManager::LOGIN_PAGE);
+            pageManager.setSelector(LOGIN_PAGE);
             myFile << "SET TO LOGIN PAGE\n" << std::endl;
             myFile.flush();
             break;
         }
         case GO_TO_REGISTER_PAGE: {
-            pageManager.setSelector(PageManager::REGISTER_PAGE);
+            pageManager.setSelector(REGISTER_PAGE);
             myFile << "SET TO REGISTER PAGE\n" << std::endl;
             myFile.flush();
             break;

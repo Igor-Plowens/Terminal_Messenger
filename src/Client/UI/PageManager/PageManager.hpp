@@ -10,13 +10,6 @@
 class PageManager {
 public:
 
-    enum PageType {
-        STARTING_PAGE = 0,
-        REGISTER_PAGE = 1,
-        LOGIN_PAGE = 2,
-        LOADING_PAGE = 3,
-        MENU = 4
-    };
 
     PageManager(Queue &queue);
 
@@ -24,6 +17,10 @@ public:
 
 
     void setSelector(PageType val);
+
+    PageType getLoadingsMethodOfEntry();
+
+    void forwardFeedbackString(const std::string &str);
 
 
 

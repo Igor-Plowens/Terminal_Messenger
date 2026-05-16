@@ -9,12 +9,12 @@ public:
     RegisterPage(Queue &eventQueue);
 
 
-    ftxui::Component getContainer();
+    //ftxui::Component getContainer();
+
+    ftxui::Component getRenderer();
 
 
-
-
-
+    void setFeedback(const std::string &text);
 
 
 private:
@@ -30,5 +30,9 @@ private:
     std::string username;
     std::string password;
 
+    ftxui::Component renderer;
+    std::string feedback = "Enter data";
+
     ftxui::Component container;
+
 };
