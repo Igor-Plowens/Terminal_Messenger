@@ -76,13 +76,13 @@ std::optional<TaskOutgoing> TaskManager::processLogin(const TaskIncoming &task) 
     if (check) {
         std::printf("Login success [processLogin]\n");
         res.information.opcode = LOGIN_SUCCESS;
+        res.information.append_val(static_cast<ID_t>(db.find_user_id(nickname)));
+        res.information.append_val(static_cast<std::string>(nickname));
     }
     else {
         std::printf("Login failure [processLogin]\n");
         res.information.opcode = LOGIN_FAIL;
     }
-    res.information.append_val(static_cast<ID_t>(db.find_user_id(nickname)));
-    res.information.append_val(static_cast<std::string>(nickname));
     return res;
 }
 
@@ -106,9 +106,9 @@ std::optional<TaskOutgoing> TaskManager::processRegister(const TaskIncoming &tas
         std::printf("Register success [processRegister]\n");
         res.information.opcode = REGISTER_SUCCESS;
         db.add_user(nickname, password);
+        res.information.append_val(static_cast<ID_t>(db.find_user_id(nickname)));
+        res.information.append_val(static_cast<std::string>(nickname));
     }
-    res.information.append_val(static_cast<ID_t>(db.find_user_id(nickname)));
-    res.information.append_val(static_cast<std::string>(nickname));
     return res;
 }
 
