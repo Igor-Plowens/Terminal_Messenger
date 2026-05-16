@@ -41,7 +41,6 @@ int main(int argc, char** argv) {
     });
 
     screen.Loop(catcher);
-    std::this_thread::sleep_for(std::chrono::seconds(2));
     std::printf("Screen loop ended\n");
     t2.join();
     std::printf("network writer joined\n");

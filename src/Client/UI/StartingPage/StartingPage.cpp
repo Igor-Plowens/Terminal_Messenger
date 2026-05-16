@@ -15,7 +15,13 @@ StartingPage::StartingPage(Queue &queue): eventQueue(queue) {
         eventQueue.pushBack(act);
     });
 
-    container = ftxui::Container::Horizontal({goToRegisterPageButton, goToLoginPageButton});
+    leaveButton = ftxui::Button("Leave", [this]() {
+        InformationUnit act;
+        act.opcode = CLIENT_SHUTDOWN;
+        eventQueue.pushBack(act);
+    });
+
+    container = ftxui::Container::Horizontal({goToRegisterPageButton, goToLoginPageButton, leaveButton});
 }
 
 ftxui::Component StartingPage::getContainer() {

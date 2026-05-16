@@ -20,5 +20,7 @@ private:
     ftxui::Component goToLoginPageButton;
     ftxui::Component goToRegisterPageButton;
 
+    ftxui::Component leaveButton;
+
     ftxui::Component container;
 };
