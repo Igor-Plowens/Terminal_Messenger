@@ -120,6 +120,7 @@ void Overseer::reactToInfo(const InformationUnit &unit) {
 
         case LOGIN_SUCCESS:
         case REGISTER_SUCCESS: {
+            //pageManager.forwardFeedbackString("Input data"); todo: add if logout and login?
             pageManager.setSelector(MENU);
             myFile << "SET TO MENU\n" << std::endl;
             myFile.flush();
