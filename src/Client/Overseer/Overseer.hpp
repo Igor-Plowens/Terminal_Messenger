@@ -21,6 +21,17 @@ public:
 
     ftxui::Component getTab();
 
+    PageType getPageType() {
+        return pageManager.getPageType();
+    }
+
+    void incrementDmCache() {
+        pageManager.incrementDmCache();
+    }
+    void decrementDmCache() {
+        pageManager.decrementDmCache();
+    }
+
 
 
 private:

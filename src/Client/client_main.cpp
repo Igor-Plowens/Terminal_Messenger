@@ -37,6 +37,20 @@ int main(int argc, char** argv) {
             ovs.handleQueue();
             return true;
         }
+
+        if (ev.is_mouse()) {
+            if (ovs.getPageType() != DM_PAGE) return false;
+
+            if (ev.mouse().button == ftxui::Mouse::WheelUp) {
+                ovs.decrementDmCache();
+                return true;
+            }
+            if (ev.mouse().button == ftxui::Mouse::WheelDown) {
+                ovs.incrementDmCache();
+                return true;
+            }
+        }
+
         return false;
     });
 

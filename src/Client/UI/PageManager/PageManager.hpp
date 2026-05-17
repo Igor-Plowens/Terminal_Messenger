@@ -21,12 +21,17 @@ public:
 
     void setSelector(PageType val);
 
+    PageType getPageType();
+
     PageType getLoadingsMethodOfEntry();
 
     void forwardFeedbackString(const std::string &str);
 
 
     void forwardDmMessage(DmMessage &&dmMessage);
+
+    void incrementDmCache();
+    void decrementDmCache();
 
     std::string getDmRecipient();
 

@@ -190,7 +190,6 @@ void Overseer::reactToInfo(const InformationUnit &unit) {
         }
     }
     myFile.close();
-    //screen.PostEvent(ftxui::Event::Custom); todo: 99% should be removed completely
 }
 
 

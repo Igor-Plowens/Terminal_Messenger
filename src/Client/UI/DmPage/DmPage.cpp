@@ -50,6 +50,15 @@ DmPage::DmPage(Queue &queue): eventQueue(queue) {
     });
 }
 
+void DmPage::decrementOffset() {
+    offset = std::max(0, offset - 1);
+}
+
+void DmPage::incrementOffset() {
+    offset = std::min(static_cast<int>(dmMessagesCache.size() - 1), offset + 1);
+}
+
+
 ftxui::Component DmPage::getRenderer() {
     return renderer;
 }

@@ -22,6 +22,11 @@ void PageManager::setSelector(PageType val) {
     selector = val;
 }
 
+PageType PageManager::getPageType() {
+    auto res = static_cast<PageType>(selector);
+    return res;
+}
+
 PageType PageManager::getLoadingsMethodOfEntry() {
     return loadingPage.getMethodOfEntry();
 }
@@ -38,6 +43,14 @@ void PageManager::forwardFeedbackString(const std::string &str) {
 void PageManager::forwardDmMessage(DmMessage &&dmMessage) {
     dmPage.addMessage(std::move(dmMessage));
 }
+
+void PageManager::incrementDmCache() {
+    dmPage.incrementOffset();
+}
+void PageManager::decrementDmCache() {
+    dmPage.decrementOffset();
+}
+
 
 std::string PageManager::getDmRecipient() {
     return dmPage.getRecipient();
