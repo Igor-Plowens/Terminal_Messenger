@@ -23,15 +23,6 @@ enum Opcode: std::uint16_t{
     RELAY_LATEST_MESSAGES,
 
 
-    CLIENT_SHUTDOWN,
-
-    GO_TO_STARTING_PAGE,
-    GO_TO_LOGIN_PAGE,
-    GO_TO_REGISTER_PAGE,
-    GO_TO_MENU_PAGE,
-    GO_TO_DM_PAGE,
-
-
     BULLSHIT = 67
 };
 
