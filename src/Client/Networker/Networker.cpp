@@ -73,12 +73,14 @@ Task Networker::convertInformationToTask(InformationUnit unit) {
         case LOGIN_FAIL: {
             task = [](UiState& state, Networker&networker) {
                 state.loginPage.setFeedback("Login failure!");
+                state.selector = PageType::LOGIN_PAGE;
             };
             return task;
         }
         case REGISTER_FAILURE: {
             task = [](UiState& state, Networker&networker) {
                 state.registerPage.setFeedback("Register failure!");
+                state.selector = PageType::REGISTER_PAGE;
             };
             return task;
         }
