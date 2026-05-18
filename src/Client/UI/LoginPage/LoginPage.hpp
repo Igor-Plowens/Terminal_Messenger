@@ -9,7 +9,6 @@ public:
     LoginPage(Queue &eventQueue);
 
 
-    //ftxui::Component getContainer();
 
     ftxui::Component getRenderer();
 

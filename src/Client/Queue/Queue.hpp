@@ -1,52 +1,26 @@
 #pragma once
 #include <deque>
 #include <mutex>
-#include "InformationUnit/InformationUnit.hpp"
+#include "Task/Task.hpp"
 #include "condition_variable"
 #include "mutex"
+#include "includesFTXUI.hpp"
 
-// template<class T>
-// class Queue {
-// public:
-//     void pushBack(T item) {
-//         std::lock_guard lock(mutex);
-//         queue.push_back(std::move(item));
-//     }
-//
-//     T getFront() {
-//         std::lock_guard lock(mutex);
-//         return queue.front();
-//     }
-//
-// private:
-//     std::deque<T> queue;
-//     std::mutex mutex;
-// };
 
 class Queue {
 public:
     Queue(ftxui::ScreenInteractive &screen): screen(screen) {}
 
 
-    void pushBack(const InformationUnit &item) {
+    void pushBack(Task item) {
         {
             std::lock_guard lock(mut);
-            queue.push_back(item);
+            queue.push_back(std::move(item));
         }
         screen.PostEvent(ftxui::Event::Custom);
     }
 
-
-    InformationUnit getFront() {
-        std::lock_guard lock(mut);
-        return queue.front();
-    }
-
-    bool isEmpty() {
-        return queue.empty();
-    }
-
-    void getQueue(std::deque<InformationUnit> &inputQueue) {
+    void getQueue(std::deque<Task> &inputQueue) {
         std::lock_guard lck(mut);
         inputQueue = std::move(queue);
         queue.clear();
@@ -54,8 +28,7 @@ public:
 
 
 private:
-    std::deque<InformationUnit> queue;
+    std::deque<Task> queue;
     std::mutex mut;
-
     ftxui::ScreenInteractive &screen;
 };

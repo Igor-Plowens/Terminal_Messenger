@@ -23,6 +23,7 @@ public:
 
     void addMessage(DmMessage &&message);
 
+    void clearCache();
 
 
     void incrementOffset();
@@ -53,8 +54,6 @@ private:
     ftxui::Component container;
     ftxui::Component renderer;
 
-
-    std::mutex dmMessageMutex;
     std::deque<DmMessage> dmMessagesCache;
     int offset = 0;
 

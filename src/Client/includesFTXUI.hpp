@@ -4,11 +4,12 @@
 #include <ftxui/dom/elements.hpp>
 
 enum PageType {
-    STARTING_PAGE = 0,
-    REGISTER_PAGE = 1,
-    LOGIN_PAGE = 2,
-    LOADING_PAGE = 3,
-    MENU = 4,
+    LOADING_PAGE = 0,
+    STARTING_PAGE,
+    LOGIN_PAGE,
+    REGISTER_PAGE,
+    MENU_PAGE,
     DM_PAGE
 };
+
 

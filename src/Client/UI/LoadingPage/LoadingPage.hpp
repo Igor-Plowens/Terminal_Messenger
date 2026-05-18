@@ -9,13 +9,10 @@ public:
 
     ftxui::Component getRenderer();
 
-    void setMethodOfEntry(PageType method);
-    PageType getMethodOfEntry();
 
 
 private:
 
-    PageType methodOfEntry;
 
     ftxui::Component renderer;
 
