@@ -1,5 +1,5 @@
 #include "TaskThread.hpp"
-
+#include <iostream>
 
 void TaskManager::assignTasks(std::vector<TaskIncoming> &&tasks) {
     {
@@ -50,6 +50,10 @@ std::optional<std::vector<TaskOutgoing>> TaskManager::processTasks() {
             std::printf("handling send message by name [processTasks]\n");
             res = processSendMessageByName(task);
         }
+        else if (task.information.opcode == GET_LATEST_MESSAGES_BY_NAME) {
+            std::printf("Getting latest messages by name [processTasks]\n");
+            res = processGetLatestMessagesByName(task);
+        }
         else {
             throw std::runtime_error("unknown opcode");
         }
@@ -61,7 +65,7 @@ std::optional<std::vector<TaskOutgoing>> TaskManager::processTasks() {
 
 
 std::optional<TaskOutgoing> TaskManager::processLogin(const TaskIncoming &task) {
-    std::this_thread::sleep_for(std::chrono::seconds(5)); //todo: remove
+    std::this_thread::sleep_for(std::chrono::seconds(1)); //todo: remove
 
     std::printf("In processLogin [processLogin]\n");
     std::printf("Author of this task: %d\n", task.author.connectionId);
@@ -124,10 +128,11 @@ std::optional<TaskOutgoing> TaskManager::processSendMessageByName(const TaskInco
     data1.userId = recipientId; //redundant
     data1.username = recipient;
 
-    ClientData data2;
-    data2.userId = task.author.userId;
-    data2.username = task.author.username;
-    data2.connectionId = task.author.connectionId;
+    ClientData data2 = task.author;
+    //data2.userId = task.author.userId;
+    //data2.username = task.author.username;
+    //data2.connectionId = task.author.connectionId;
+    //todo: verify if thats an improvement
 
 
     res.recipients.push_back(data1);
@@ -139,8 +144,35 @@ std::optional<TaskOutgoing> TaskManager::processSendMessageByName(const TaskInco
     return res;
 }
 
+std::optional<TaskOutgoing> TaskManager::processGetLatestMessagesByName(const TaskIncoming &task) {
+    std::string recipient = std::get<std::string>(task.information.data[0]);
+    int64_t authorID = *task.author.userId;
+    int64_t recipientId = db.find_user_id(recipient);
+
+    std::vector<Message> mess = db.get_latest_messages(authorID, recipientId);
+
+    std::println(std::cout, "Number of messages: {} [processGetLatestMessagesByName]", mess.size());
 
 
+    TaskOutgoing res;
+    ClientData data = task.author;
+    res.recipients.push_back(std::move(data));
+
+    res.information.opcode = RELAY_LATEST_MESSAGES_BY_NAME;
+    res.information.append_val(recipient);
+    res.information.append_val(static_cast<std::uint16_t>(mess.size()));
+    for (const auto &message: mess) {
+        std::println(std::cout, "Message ID: {} [processGetLatestMessagesByName]", static_cast<ID_t>(message.message_id));
+        std::println(std::cout, "Message author bool: {} [processGetLatestMessagesByName]", static_cast<Byte>(message.outgoing));
+        std::println(std::cout, "Message content: {} [processGetLatestMessagesByName]", message.content);
+        res.information.append_val(static_cast<ID_t>(message.message_id));
+        res.information.append_val(static_cast<Byte>(message.outgoing));
+        res.information.append_val(message.content);
+    }
+    return res;
+
+
+}
 
 
 

@@ -110,6 +110,7 @@ std::optional<std::vector<TaskIncoming>>NetworkThread::loopOver() {
         });
         if (it == clients.end()) {
             std::printf("Strange error, couldnt find the client so skipping [loopOver]\n");
+            continue;
         }
 
         std::shared_ptr<Client> foundClient = *it;

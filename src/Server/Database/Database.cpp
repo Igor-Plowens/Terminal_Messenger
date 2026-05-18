@@ -184,47 +184,35 @@ std::vector<Message> Database::get_message_batch(std::int64_t askerID, std::int6
 }
 
 std::vector<Message> Database::get_latest_messages(std::int64_t askerID, std::int64_t interlocutor_id, std::uint64_t amount){
-    SQLite::Statement query1(
+    SQLite::Statement query(
         db,
-        "SELECT Message_ID, Content "
-        "FROM Messages "
-        "WHERE Sender_ID = ? AND Receiver_ID = ?"
-        "ORDER BY Message_ID DESC"
+        "SELECT Message_ID, Sender_ID, Content FROM Messages "
+        "WHERE ((Sender_ID = ? AND Receiver_ID = ?) OR (Sender_ID = ? AND Receiver_ID = ?)) "
+        "ORDER BY Message_ID DESC "
         "LIMIT ? "
     );
 
-    query1.bind(1, askerID);
-    query1.bind(2, interlocutor_id);
-    query1.bind(3, static_cast<std::int64_t>(amount));
+    query.bind(1, askerID);
+    query.bind(2, interlocutor_id);
+    query.bind(3, interlocutor_id);
+    query.bind(4, askerID);
+    query.bind(5, static_cast<std::int64_t>(amount));
+    std::vector<std::int64_t> authors;
     std::vector<Message> messages;
-    while (query1.executeStep()){
-        messages.push_back({
-            query1.getColumn(0).getInt64(),
-            query1.getColumn(1).getText(),
+    while (query.executeStep()){
+        messages.emplace_back(
+            query.getColumn(0).getInt64(),
+            query.getColumn(2).getText(),
             true
-        });
+        );
+        authors.push_back(query.getColumn(1).getInt64());
+    }
+    for (int i = 0; i < authors.size(); ++i) {
+        if (authors[i] != askerID) {
+            messages[i].outgoing = false;
+        }
     }
 
-    SQLite::Statement query2(
-        db,
-        "SELECT Message_ID, Content "
-        "FROM Messages "
-        "WHERE Receiver_ID = ? AND Sender_ID = ?"
-        "ORDER BY Message_ID DESC"
-        "LIMIT ? "
-    );
-
-    query2.bind(1, askerID);
-    query2.bind(2, interlocutor_id);
-    query2.bind(3, static_cast<std::int64_t>(amount));
-
-    while (query2.executeStep()){
-        messages.push_back({
-            query2.getColumn(0).getInt64(),
-            query2.getColumn(1).getText(),
-            false
-        });
-    }
     std::ranges::sort(
         messages,
         [](const Message &mess1, const Message &mess2){
