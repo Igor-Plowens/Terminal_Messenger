@@ -1,6 +1,12 @@
 #pragma once
 
-#include "UI/PageManager/PageManager.hpp"
+#include "UI/DmPage/DmPage.hpp"
+#include "UI/LoadingPage/LoadingPage.hpp"
+#include "UI/LoginPage/LoginPage.hpp"
+#include "UI/MenuPage/MenuPage.hpp"
+#include "UI/RegisterPage/RegisterPage.hpp"
+#include "UI/StartingPage/StartingPage.hpp"
+
 #include "Connection/Connection.hpp"
 #include "InformationUnit/InformationUnit.hpp"
 
@@ -11,32 +17,19 @@ class Overseer {
 public:
     Overseer(int sockFd, ftxui::ScreenInteractive &screen);
 
-    void setShutdown();
 
-    void networkReader();
-    void networkWriter();
+
+    //void networkReader();
+    //void networkWriter(); todo: remove completely once shifted to networker
 
     void handleQueue();
 
 
     ftxui::Component getTab();
 
-    PageType getPageType() {
-        return pageManager.getPageType();
-    }
-
-    void incrementDmCache() {
-        pageManager.incrementDmCache();
-    }
-    void decrementDmCache() {
-        pageManager.decrementDmCache();
-    }
-
 
 
 private:
-
-    void sendInfo(const InformationUnit &unit);
 
     void reactToInfo(const InformationUnit &unit);
 
@@ -46,19 +39,16 @@ private:
     Queue eventQueue;
 
 
-
-    Connection connection;
-    PageManager pageManager;
-
-
-
-
-    std::deque<InformationUnit> writeQueue;
-    std::mutex writeQueueMut;
-    std::condition_variable writeQueueCV;
-
-
-    std::ofstream myFile{"/dev/pts/2"};
-
     bool shutdownFlag = false;
+
+
+
+
+    //Connection connection;
+    //std::deque<InformationUnit> writeQueue;
+    //std::mutex writeQueueMut;
+    //std::condition_variable writeQueueCV;
+
+
+
 };

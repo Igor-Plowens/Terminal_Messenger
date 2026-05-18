@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
 
-#include "Overseer/Overseer.hpp"
+#include "Networker/Networker.hpp"
+#include "Task/Task.hpp"
+#include "UiState/UiState.hpp"
 
 
 
@@ -28,25 +30,35 @@ int main(int argc, char** argv) {
 
     auto screen = ftxui::ScreenInteractive::Fullscreen();
 
-    Overseer ovs(sock, screen);
+    Queue eventQueue(screen);
 
-    std::thread t1(&Overseer::networkReader, &ovs);
-    std::thread t2(&Overseer::networkWriter, &ovs);
-    auto catcher = ftxui::CatchEvent(ovs.getTab(), [&ovs](ftxui::Event ev) {
+    Networker networker(sock, eventQueue);
+
+    UiState uiState(screen, eventQueue);
+
+
+    std::thread t1(&Networker::networkReadingThread, &networker);
+    std::thread t2(&Networker::networkWritingThread, &networker);
+    auto catcher = ftxui::CatchEvent(uiState.getFinalContainer(),
+        [&eventQueue, &networker, &uiState](ftxui::Event ev) {
         if (ev == ftxui::Event::Custom) {
-            ovs.handleQueue();
+            std::deque<Task> tasksCopy;
+            eventQueue.getQueue(tasksCopy);
+            for (auto &task: tasksCopy) {
+                task(uiState, networker);
+            }
             return true;
         }
 
         if (ev.is_mouse()) {
-            if (ovs.getPageType() != DM_PAGE) return false;
+            if (uiState.selector != PageType::DM_PAGE) return false;
 
             if (ev.mouse().button == ftxui::Mouse::WheelUp) {
-                ovs.decrementDmCache();
+                uiState.dmPage.decrementOffset();
                 return true;
             }
             if (ev.mouse().button == ftxui::Mouse::WheelDown) {
-                ovs.incrementDmCache();
+                uiState.dmPage.incrementOffset();
                 return true;
             }
         }

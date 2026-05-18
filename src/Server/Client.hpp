@@ -15,15 +15,6 @@
 
 struct ClientData {
 
-    bool operator<(const ClientData &other) const noexcept {
-        if (userId.has_value() && other.userId.has_value()) {
-            return *userId < *other.userId;
-        }
-        if (username.has_value() && other.username.has_value()) {
-            return *username < *other.username;
-        }
-        return connectionId < other.connectionId;
-    }
 
     bool operator==(const ClientData &other) noexcept {
         if (userId.has_value() && other.userId.has_value()) {

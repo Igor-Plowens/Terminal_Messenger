@@ -1,4 +1,6 @@
-#include "LoadingPage.hpp"
+#include "UiState/UiState.hpp"
+#include "InformationUnit/InformationUnit.hpp"
+#include "Networker/Networker.hpp"
 
 
 LoadingPage::LoadingPage(Queue &queue): eventQueue(queue) {
@@ -11,11 +13,5 @@ ftxui::Component LoadingPage::getRenderer() {
     return renderer;
 }
 
-void LoadingPage::setMethodOfEntry(PageType method) {
-    methodOfEntry = method;
-}
 
-PageType LoadingPage::getMethodOfEntry() {
-    return methodOfEntry;
-}
 

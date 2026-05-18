@@ -1,22 +1,33 @@
+#include "UiState/UiState.hpp"
+#include "InformationUnit/InformationUnit.hpp"
+#include "Networker/Networker.hpp"
 
-#include "RegisterPage.hpp"
 RegisterPage::RegisterPage(Queue &queue): eventQueue(queue) {
     inputUsername = ftxui::Input(&username, "Input your username");
     inputPassword = ftxui::Input(&password, "Input your password");
 
     backToStartingButton = ftxui::Button("Back to Starting", [this]() {
-        InformationUnit act;
-        act.opcode = GO_TO_STARTING_PAGE;
-        eventQueue.pushBack(act);
+        Task task = [this](UiState& state, Networker& networker) {
+            state.selector = PageType::STARTING_PAGE;
+            username.clear();
+            password.clear();
+        };
+        eventQueue.pushBack(task);
     });
 
 
     sendButton = ftxui::Button("Send", [this]() {
-        InformationUnit act;
-        act.opcode = REGISTER;
-        act.append_val(username);
-        act.append_val(password);
-        eventQueue.pushBack(act);
+        Task task = [this](UiState& state, Networker& networker) {
+            state.selector = PageType::LOADING_PAGE;
+            InformationUnit act;
+            act.opcode = REGISTER;
+            act.append_val(username);
+            act.append_val(password);
+            username.clear();
+            password.clear();
+            networker.queueWrite(std::move(act));
+        };
+        eventQueue.pushBack(task);
     });
 
     container = ftxui::Container::Vertical({inputUsername, inputPassword, sendButton, backToStartingButton});

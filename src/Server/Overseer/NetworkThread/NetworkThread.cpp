@@ -3,7 +3,11 @@
 //
 
 #include "NetworkThread.hpp"
+
+#include <algorithm>
+
 #include "Parsing/parsing.hpp"
+
 
 
 
@@ -14,7 +18,6 @@ NetworkThread::NetworkThread(int wakeupFd): wakeupFd(wakeupFd) {
     }
     int opt = 1;
     setsockopt(listenFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
     sockaddr_in addr{};
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -98,7 +101,18 @@ std::optional<std::vector<TaskIncoming>>NetworkThread::loopOver() {
 
         ClientData data;
         data.connectionId = list.buffer[i].data.fd;
-        std::shared_ptr<Client> foundClient = clients.at(data);
+
+
+
+        auto it = std::ranges::find_if(clients, [data](const std::shared_ptr<Client> &client) {
+            if (client->getData() == data) return true;
+            return false;
+        });
+        if (it == clients.end()) {
+            std::printf("Strange error, couldnt find the client so skipping [loopOver]\n");
+        }
+
+        std::shared_ptr<Client> foundClient = *it;
 
         std::optional<InformationUnit> unit = handleClient(foundClient, list.buffer[i]);
 
@@ -118,7 +132,12 @@ std::optional<InformationUnit> NetworkThread::handleClient(std::shared_ptr<Clien
         auto check = client->conn.perform_read();
         if (check == Connection::DISCONNECT) {
             std::printf("Client disconnected [handleClient]\n");
-            clients.erase(client->getData());
+            auto data = client->getData();
+
+            std::ranges::remove_if(clients, [data](const std::shared_ptr<Client> &client) {
+                if (client->getData() == data) return true;
+                return false;
+            });
             epoll_manager.removeEvent(ev.data.fd);
             return std::nullopt;
         }
@@ -134,7 +153,11 @@ std::optional<InformationUnit> NetworkThread::handleClient(std::shared_ptr<Clien
         auto check = client->conn.perform_write();
         if (check == Connection::DISCONNECT) {
             std::printf("Client disconnected [handleClient]\n");
-            clients.erase(client->getData());
+            auto data = client->getData();
+            std::ranges::remove_if(clients, [data](const std::shared_ptr<Client> &client) {
+                if (client->getData() == data) return true;
+                return false;
+            });
             epoll_manager.removeEvent(ev.data.fd);
             return std::nullopt;
         }
@@ -154,23 +177,20 @@ void NetworkThread::loopOverTasks(const std::vector<TaskOutgoing> &tasks) {
     for (const auto &task : tasks) {
         std::printf("Task of opcode: %d is being distributed [loopOverTasks]\n", task.information.opcode);
         for (auto &destinationAddress: task.recipients) {
-            auto found = clients.find(destinationAddress);
+            //auto found = clients.find(destinationAddress);
+            auto found = std::ranges::find_if(clients, [destinationAddress](const std::shared_ptr<Client> &client) {
+                if (client->getData() == destinationAddress) return true;
+                return false;
+            });
 
             if (found == clients.end()) continue;
 
-            std::printf("Task is being distributed to sockid: %d\n", (*found).second->conn.get_sock());
-            (*found).second->conn.assign_write(Parsing::imprint_buffer(task.information));
-            epoll_manager.giveEpollout((*found).second->conn.get_sock());
+            std::printf("Task is being distributed to sockid: %d\n", (*found)->conn.get_sock());
+            (*found)->conn.assign_write(Parsing::imprint_buffer(task.information));
+            epoll_manager.giveEpollout((*found)->conn.get_sock());
 
             if (task.information.opcode == LOGIN_SUCCESS || task.information.opcode == REGISTER_SUCCESS) {
-                (*found).second->setUserInfo(std::get<ID_t>(task.information.data[0]), std::get<std::string>(task.information.data[1]));
-                //todo: FIX THIS MESS
-                ClientData data = found->first;
-                data.userId = std::get<ID_t>(task.information.data[0]);
-                data.username = std::get<std::string>(task.information.data[1]);
-                std::shared_ptr<Client> ptr = found->second;
-                clients.erase(destinationAddress);
-                clients.insert({data, ptr});
+                (*found)->setUserInfo(std::get<ID_t>(task.information.data[0]), std::get<std::string>(task.information.data[1]));
             }
         }
     }
@@ -183,8 +203,6 @@ void NetworkThread::addClient() {
         return;
     }
     std::printf("Client of sock %d was added [addClient]\n", sock);
-    ClientData data;
-    data.connectionId = sock;
-    clients.emplace(data, std::make_shared<Client>(sock));
+    clients.push_back(std::make_shared<Client>(sock));
     epoll_manager.addEvent(sock);
 }

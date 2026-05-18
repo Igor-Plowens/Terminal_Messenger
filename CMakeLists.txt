@@ -57,16 +57,17 @@ add_executable(client
         src/Client/UI/RegisterPage/RegisterPage.hpp
         src/Client/UI/StartingPage/StartingPage.cpp
         src/Client/UI/StartingPage/StartingPage.hpp
-        src/Client/UI/PageManager/PageManager.cpp
-        src/Client/UI/PageManager/PageManager.hpp
-        src/Client/Overseer/Overseer.cpp
-        src/Client/Overseer/Overseer.hpp
         src/Client/UI/MenuPage/MenuPage.cpp
         src/Client/UI/MenuPage/MenuPage.hpp
         src/Client/UI/LoadingPage/LoadingPage.cpp
         src/Client/UI/LoadingPage/LoadingPage.hpp
         src/Client/UI/DmPage/DmPage.cpp
         src/Client/UI/DmPage/DmPage.hpp
+        src/Client/Networker/Networker.cpp
+        src/Client/Networker/Networker.hpp
+        src/Client/Task/Task.hpp
+        src/Client/UiState/UiState.hpp
+        src/Client/UiState/UiState.cpp
 )
 
 target_include_directories(server
