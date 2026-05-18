@@ -189,7 +189,7 @@ std::vector<Message> Database::get_latest_messages(std::int64_t askerID, std::in
         "SELECT Message_ID, Content "
         "FROM Messages "
         "WHERE Sender_ID = ? AND Receiver_ID = ?"
-        "SORT BY Message_ID DESC"
+        "ORDER BY Message_ID DESC"
         "LIMIT ? "
     );
 
@@ -210,7 +210,7 @@ std::vector<Message> Database::get_latest_messages(std::int64_t askerID, std::in
         "SELECT Message_ID, Content "
         "FROM Messages "
         "WHERE Receiver_ID = ? AND Sender_ID = ?"
-        "SORT BY Message_ID DESC"
+        "ORDER BY Message_ID DESC"
         "LIMIT ? "
     );
 
@@ -225,11 +225,10 @@ std::vector<Message> Database::get_latest_messages(std::int64_t askerID, std::in
             false
         });
     }
-    std::sort(
-        messages.begin(),
-        messages.end(),
+    std::ranges::sort(
+        messages,
         [](const Message &mess1, const Message &mess2){
-            return mess1.message_id < mess2.message_id;
+            return mess1.message_id > mess2.message_id;
         }
     );
     return messages;
