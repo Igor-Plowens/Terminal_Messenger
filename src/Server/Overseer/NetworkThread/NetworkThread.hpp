@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 
+
 #include "TaskIncoming.hpp"
 
 
@@ -41,7 +42,7 @@ private:
 
 
     EpollManager epoll_manager;
-    std::map<ClientData, std::shared_ptr<Client>> clients;
+    std::vector<std::shared_ptr<Client>> clients;
 
 
     std::mutex tasksMut;
