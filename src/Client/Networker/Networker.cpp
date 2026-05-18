@@ -121,6 +121,23 @@ Task Networker::convertInformationToTask(InformationUnit unit) {
             };
             return task;
         }
+
+        case RELAY_LATEST_MESSAGES_BY_NAME: {
+            std::vector<DmMessage> messages;
+            for (int i = 2, j = 0; j < std::get<std::uint16_t>(unit.data[1]); i+=3, j++) {
+                messages.emplace_back(std::get<Byte>(unit.data[i+1]),
+                    std::get<std::string>(unit.data[i+2]),
+                    std::get<ID_t>(unit.data[i]));
+            }
+            task = [messages](UiState& state, Networker&networker) mutable {
+                for (auto it = messages.rbegin(); it != messages.rend(); ++it ) {
+                    state.dmPage.addMessage(std::move(*it));
+                }
+                state.selector = PageType::DM_PAGE;
+            };
+            return task;
+
+        }
         default: {
             throw std::runtime_error("Invalid opcode");
         }

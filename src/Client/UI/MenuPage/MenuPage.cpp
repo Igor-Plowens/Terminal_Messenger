@@ -19,7 +19,12 @@ MenuPage::MenuPage(Queue &queue): eventQueue(queue) {
                 uiState.dmPage.clearCache();
             }
             uiState.dmPage.setRecipient(dmDestination);
-            uiState.selector = PageType::DM_PAGE;
+            uiState.selector = PageType::LOADING_PAGE;
+
+            InformationUnit unit;
+            unit.opcode = GET_LATEST_MESSAGES_BY_NAME;
+            unit.append_val(dmDestination);
+            networker.queueWrite(std::move(unit));
             dmDestination.clear();
        };
         eventQueue.pushBack(std::move(task));
