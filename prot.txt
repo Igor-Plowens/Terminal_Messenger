@@ -48,11 +48,17 @@ MESSEGING
          get latest 10 messages
       [size][opcode][destination_user id]
 
+        get latest 10 messages by name
+      [size][opcode][destination_user len][destination_user_nick]
+
          relay further 10 messages
       [size][opcode][interlocutor_id][number_of_elements] [id_message1] [author_bool][len message][message]
 
          relay latest 10 messages (new convo)
       [size][opcode][interlocutor_id][number_of_elements] [id_message1] [author_bool][len message][message]
+
+        relay latest 10 messages by name (new convo)
+      [size][opcode][interlocutor_name_len][interlocutor_name][number_of_elements][id_message1][author_bool][len message][message]
 
 
 
