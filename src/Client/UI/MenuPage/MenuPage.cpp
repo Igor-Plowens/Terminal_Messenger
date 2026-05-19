@@ -15,6 +15,11 @@ MenuPage::MenuPage(Queue &queue): eventQueue(queue) {
     dmDestinationInput = ftxui::Input(&dmDestination, "Recipient name");
     enterDmButton = ftxui::Button("Enter dms", [this]() {
         Task task = [this](UiState& uiState, Networker& networker) {
+            if (dmDestination == uiState.myNickname) {
+                dmDestination.clear();
+                feedback = "Invalid recipient (you tried messaging yourself)";
+                return;
+            }
             uiState.dmPage.setRecipient(dmDestination);
             uiState.selector = PageType::LOADING_PAGE;
 
