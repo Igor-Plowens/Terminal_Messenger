@@ -11,6 +11,7 @@ const std::map<Opcode, std::vector<DataType>> signatures_incoming({
         {REGISTER, {STRING, STRING}},
         {SEND_MESSAGE_BY_NAME, {STRING, STRING}},
         {GET_FURTHER_MESSAGES, {ID, ID}},
+        {GET_FURTHER_MESSAGES_BY_NAME, {STRING, ID}},
         {GET_LATEST_MESSAGES, {ID}},
         {GET_LATEST_MESSAGES_BY_NAME, {STRING}}
     });
@@ -30,6 +31,7 @@ const std::map<Opcode, std::vector<DataType>> signatures_incoming({
         {RELAY_MESSAGE, {ID, ID, STRING}},
         {RELAY_MESSAGE_BY_NAME, {STRING, ID, STRING}},
         {RELAY_FURTHER_MESSAGES, {ID, UINT16}},
+        {RELAY_FURTHER_MESSAGES_BY_NAME, {STRING, UINT16}},
         {RELAY_LATEST_MESSAGES, {ID, UINT16}},
         {RELAY_LATEST_MESSAGES_BY_NAME, {STRING, UINT16}},
     });
@@ -37,7 +39,8 @@ const std::map<Opcode, std::vector<DataType>> signatures_incoming({
 
 const std::map<Opcode, std::vector<DataType>> signatures_incoming_extended{
         {RELAY_FURTHER_MESSAGES, {ID, BYTE, STRING}},
-        {RELAY_LATEST_MESSAGES_BY_NAME, {ID, BYTE, STRING}},
+        {RELAY_FURTHER_MESSAGES_BY_NAME, {ID, BYTE, STRING}},
+        {RELAY_LATEST_MESSAGES_BY_NAME, {ID, BYTE, STRING}}
 };
 
 
