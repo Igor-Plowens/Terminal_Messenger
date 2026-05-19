@@ -151,7 +151,18 @@ std::optional<TaskOutgoing> TaskManager::processSendMessageByName(const TaskInco
 std::optional<TaskOutgoing> TaskManager::processGetLatestMessagesByName(const TaskIncoming &task) {
     std::string recipient = std::get<std::string>(task.information.data[0]);
     int64_t authorID = *task.author.userId;
-    int64_t recipientId = db.find_user_id(recipient);
+    int64_t recipientId;
+    try {
+        recipientId = db.find_user_id(recipient);
+    }
+    catch (...) {
+        TaskOutgoing res;
+        res.recipients.push_back(task.author);
+        res.information.opcode = ERROR_DESTINATION_RECIPIENT_INVALID;
+        return res;
+    }
+
+
 
     std::vector<Message> mess = db.get_latest_messages(authorID, recipientId);
 
@@ -159,8 +170,7 @@ std::optional<TaskOutgoing> TaskManager::processGetLatestMessagesByName(const Ta
 
 
     TaskOutgoing res;
-    ClientData data = task.author;
-    res.recipients.push_back(std::move(data));
+    res.recipients.push_back(task.author);
 
     res.information.opcode = RELAY_LATEST_MESSAGES_BY_NAME;
     res.information.append_val(recipient);

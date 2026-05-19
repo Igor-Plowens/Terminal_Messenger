@@ -141,6 +141,13 @@ Task Networker::convertInformationToTask(InformationUnit unit) {
             };
             return task;
         }
+        case ERROR_DESTINATION_RECIPIENT_INVALID: {
+            task = [](UiState& state, Networker&networker) {
+                state.menuPage.setFeedback("Invalid destination recipient");
+                state.selector = PageType::MENU_PAGE;
+            };
+            return task;
+        }
         case RELAY_FURTHER_MESSAGES_BY_NAME: {
             std::vector<DmMessage> messages;
             for (int i = 2, j = 0; j < std::get<std::uint16_t>(unit.data[1]); i+=3, j++) {

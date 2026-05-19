@@ -34,6 +34,7 @@ const std::map<Opcode, std::vector<DataType>> signatures_incoming({
         {RELAY_FURTHER_MESSAGES_BY_NAME, {STRING, UINT16}},
         {RELAY_LATEST_MESSAGES, {ID, UINT16}},
         {RELAY_LATEST_MESSAGES_BY_NAME, {STRING, UINT16}},
+        {ERROR_DESTINATION_RECIPIENT_INVALID, {}}
     });
 
 

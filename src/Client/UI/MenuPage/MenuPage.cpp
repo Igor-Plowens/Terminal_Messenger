@@ -23,19 +23,38 @@ MenuPage::MenuPage(Queue &queue): eventQueue(queue) {
             unit.append_val(dmDestination);
             networker.queueWrite(std::move(unit));
             dmDestination.clear();
+            feedback.clear();
        };
         eventQueue.pushBack(std::move(task));
     });
 
 
     container = ftxui::Container::Vertical({dmDestinationInput, enterDmButton, leaveButton});
+
+    renderer = ftxui::Renderer(container, [this]() {
+        if (feedback.empty()) {
+            return container->Render();
+        }
+        else {
+            return ftxui::vbox({
+                ftxui::paragraph(feedback) | ftxui::border,
+                container->Render()
+            });
+        }
+    });
+
 }
 
 
-ftxui::Component MenuPage::getContainer() {
-    return container;
+
+ftxui::Component MenuPage::getRenderer() {
+    return renderer;
 }
 
 std::string MenuPage::getChosenRecipient() {
     return dmDestination;
+}
+
+void MenuPage::setFeedback(const std::string &feedback) {
+    this->feedback = feedback;
 }

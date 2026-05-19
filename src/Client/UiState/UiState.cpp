@@ -15,7 +15,7 @@ UiState::UiState(ftxui::ScreenInteractive &screen, Queue &queue):
             startingPage.getContainer(),
             loginPage.getRenderer(),
             registerPage.getRenderer(),
-            menuPage.getContainer(),
+            menuPage.getRenderer(),
             dmPage.getRenderer()
         }, &selector);
 }

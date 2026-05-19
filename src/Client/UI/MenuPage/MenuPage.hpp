@@ -6,9 +6,13 @@ class MenuPage {
 public:
     MenuPage(Queue &eventQueue);
 
-    ftxui::Component getContainer();
+
+    ftxui::Component getRenderer();
+
 
     std::string getChosenRecipient();
+
+    void setFeedback(const std::string &feedback);
 
 
 private:
@@ -21,5 +25,9 @@ private:
     ftxui::Component leaveButton;
 
     ftxui::Component container;
+
+    ftxui::Component renderer;
+
+    std::string feedback;
 
 };

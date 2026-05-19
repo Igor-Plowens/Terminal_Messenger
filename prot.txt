@@ -66,6 +66,9 @@ MESSEGING
         relay latest 10 messages by name (new convo)
       [size][opcode][interlocutor_name_len][interlocutor_name][number_of_elements][id_message1][author_bool][len message][message]
 
+        error invalid recipient when entering dms (new convo)
+      [size][opcode]
+
 
 
 
