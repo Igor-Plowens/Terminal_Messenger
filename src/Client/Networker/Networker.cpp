@@ -105,9 +105,13 @@ Task Networker::convertInformationToTask(InformationUnit unit) {
             ID_t messageId = std::get<ID_t>(unit.data[1]);
             std::string content = std::get<std::string>(unit.data[2]);
             task = [authorName, messageId, content](UiState& state, Networker&networker) {
-                // if (state.dmPage.getRecipient() != authorName) {
-                //     return;
-                // }
+                if (state.selector != PageType::DM_PAGE) {
+                    return;
+                }
+                if (!(authorName == state.myNickname || authorName == state.dmPage.getRecipient())) {
+                    return;
+                }
+
                 DmMessage mess;
                 if (authorName == state.myNickname) {
                     mess.isMine = true;
@@ -117,7 +121,7 @@ Task Networker::convertInformationToTask(InformationUnit unit) {
                 }
                 mess.messageId = messageId;
                 mess.content = content;
-                state.dmPage.addMessage(std::move(mess));
+                state.dmPage.addMessageBeginning(std::move(mess));
             };
             return task;
         }
@@ -130,10 +134,27 @@ Task Networker::convertInformationToTask(InformationUnit unit) {
                     std::get<ID_t>(unit.data[i]));
             }
             task = [messages](UiState& state, Networker&networker) mutable {
-                for (auto it = messages.rbegin(); it != messages.rend(); ++it ) {
-                    state.dmPage.addMessage(std::move(*it));
+                for (auto it = messages.begin(); it != messages.end(); ++it ) {
+                    state.dmPage.addMessageEnd(std::move(*it));
                 }
                 state.selector = PageType::DM_PAGE;
+            };
+            return task;
+        }
+        case RELAY_FURTHER_MESSAGES_BY_NAME: {
+            std::vector<DmMessage> messages;
+            for (int i = 2, j = 0; j < std::get<std::uint16_t>(unit.data[1]); i+=3, j++) {
+                messages.emplace_back(std::get<Byte>(unit.data[i+1]),
+                    std::get<std::string>(unit.data[i+2]),
+                    std::get<ID_t>(unit.data[i]));
+            }
+            task = [messages](UiState& state, Networker&networker) mutable {
+                for (auto it = messages.begin(); it != messages.end(); ++it ) {
+                    state.dmPage.addMessageEnd(std::move(*it));
+                }
+                if (messages.size() < 10) {
+                    state.dmPage.setDmMessagesCacheFull();
+                }
             };
             return task;
 

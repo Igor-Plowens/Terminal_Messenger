@@ -21,15 +21,21 @@ public:
 
     std::string getRecipient() const;
 
-    void addMessage(DmMessage &&message);
+    void addMessageEnd(DmMessage &&message);
+    void addMessageBeginning(DmMessage &&message);
 
     void clearCache();
 
-
+    /*
     void incrementOffset();
+    void decrementOffset();
+    */
+    std::optional<Task> incrementOffset();
     void decrementOffset();
 
 
+    void setDmMessagesCacheFull();
+    void setDmMessagesCacheNotFull();
 
 
 
@@ -56,5 +62,7 @@ private:
 
     std::deque<DmMessage> dmMessagesCache;
     int offset = 0;
+
+    bool dmMessagesCacheFull = false;
 
 };

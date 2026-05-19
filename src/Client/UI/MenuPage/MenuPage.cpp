@@ -15,9 +15,6 @@ MenuPage::MenuPage(Queue &queue): eventQueue(queue) {
     dmDestinationInput = ftxui::Input(&dmDestination, "Recipient name");
     enterDmButton = ftxui::Button("Enter dms", [this]() {
         Task task = [this](UiState& uiState, Networker& networker) {
-            if (dmDestination != uiState.dmPage.getRecipient()) {
-                uiState.dmPage.clearCache();
-            }
             uiState.dmPage.setRecipient(dmDestination);
             uiState.selector = PageType::LOADING_PAGE;
 

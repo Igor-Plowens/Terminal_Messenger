@@ -58,7 +58,10 @@ int main(int argc, char** argv) {
                 return true;
             }
             if (ev.mouse().button == ftxui::Mouse::WheelDown) {
-                uiState.dmPage.incrementOffset();
+                std::optional<Task> task = uiState.dmPage.incrementOffset();
+                if (task) {
+                    (*task)(uiState, networker);
+                }
                 return true;
             }
         }
