@@ -102,23 +102,16 @@ std::optional<std::vector<TaskIncoming>>NetworkThread::loopOver() {
         ClientData data;
         data.connectionId = list.buffer[i].data.fd;
 
-
-
-        auto it = std::ranges::find_if(clients, [data](const std::shared_ptr<Client> &client) {
-            if (client->getData() == data) return true;
-            return false;
-        });
-        if (it == clients.end()) {
+        std::optional<std::shared_ptr<Client>> foundClient = getClient(data);
+        if (!foundClient.has_value()) {
             std::printf("Strange error, couldnt find the client so skipping [loopOver]\n");
             continue;
         }
 
-        std::shared_ptr<Client> foundClient = *it;
-
-        std::optional<InformationUnit> unit = handleClient(foundClient, list.buffer[i]);
+        std::optional<InformationUnit> unit = handleClient(*foundClient, list.buffer[i]);
 
         if (unit) {
-            res.emplace_back(foundClient->getData(), std::move(*unit));
+            res.emplace_back((*foundClient)->getData(), std::move(*unit));
         }
     }
     return res;
@@ -132,14 +125,7 @@ std::optional<InformationUnit> NetworkThread::handleClient(std::shared_ptr<Clien
         std::printf("There is data to read [handleClient]\n");
         auto check = client->conn.perform_read();
         if (check == Connection::DISCONNECT) {
-            std::printf("Client disconnected [handleClient]\n");
-            auto data = client->getData();
-
-            std::ranges::remove_if(clients, [data](const std::shared_ptr<Client> &client) {
-                if (client->getData() == data) return true;
-                return false;
-            });
-            epoll_manager.removeEvent(ev.data.fd);
+            removeClient(client->getData());
             return std::nullopt;
         }
         if (check == Connection::COMPLETE) {
@@ -154,12 +140,7 @@ std::optional<InformationUnit> NetworkThread::handleClient(std::shared_ptr<Clien
         auto check = client->conn.perform_write();
         if (check == Connection::DISCONNECT) {
             std::printf("Client disconnected [handleClient]\n");
-            auto data = client->getData();
-            std::ranges::remove_if(clients, [data](const std::shared_ptr<Client> &client) {
-                if (client->getData() == data) return true;
-                return false;
-            });
-            epoll_manager.removeEvent(ev.data.fd);
+            removeClient(client->getData());
             return std::nullopt;
         }
         if (check == Connection::COMPLETE) {
@@ -178,13 +159,10 @@ void NetworkThread::loopOverTasks(const std::vector<TaskOutgoing> &tasks) {
     for (const auto &task : tasks) {
         std::printf("Task of opcode: %d is being distributed [loopOverTasks]\n", task.information.opcode);
         for (auto &destinationAddress: task.recipients) {
-            //auto found = clients.find(destinationAddress);
-            auto found = std::ranges::find_if(clients, [destinationAddress](const std::shared_ptr<Client> &client) {
-                if (client->getData() == destinationAddress) return true;
-                return false;
-            });
+            auto found = getClient(destinationAddress);
 
-            if (found == clients.end()) continue;
+
+            if (!found.has_value()) continue;
 
             std::printf("Task is being distributed to sockid: %d\n", (*found)->conn.get_sock());
             (*found)->conn.assign_write(Parsing::imprint_buffer(task.information));
@@ -206,4 +184,22 @@ void NetworkThread::addClient() {
     std::printf("Client of sock %d was added [addClient]\n", sock);
     clients.push_back(std::make_shared<Client>(sock));
     epoll_manager.addEvent(sock);
+}
+
+void NetworkThread::removeClient(const ClientData &client) {
+    auto it = std::ranges::remove_if(clients, [client](const std::shared_ptr<Client> &iter) {
+        if (client == iter->getData()) return true;
+        return false;
+    });
+    clients.erase(it.begin(), it.end());
+    epoll_manager.removeEvent(client.connectionId);
+}
+
+std::optional<std::shared_ptr<Client>> NetworkThread::getClient(const ClientData &clientData) {
+    auto found =  std::ranges::find_if(clients, [clientData](const std::shared_ptr<Client> &iter) {
+        if (clientData == iter->getData()) return true;
+        return false;
+    });
+    if (found == clients.end()) return std::nullopt;
+    return *found;
 }

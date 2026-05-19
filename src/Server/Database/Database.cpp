@@ -131,55 +131,51 @@ std::int64_t Database::update_message(std::int64_t authorID, std::int64_t destat
 std::vector<Message> Database::get_message_batch(std::int64_t askerID, std::int64_t interlocutor_id,
     std::int64_t last_message_id, std::uint64_t amount){
 
-    std::int64_t higher_bound = last_message_id - 1;
-    std::int64_t lower_bound = higher_bound - amount + 1;
-
-
     SQLite::Statement query(
         db,
-        "SELECT Message_ID, Content "
-        "FROM Messages "
-        "WHERE (Sender_ID = ?) AND (Receiver_ID = ?) AND (Message_ID BETWEEN ? AND ?);"
+"WITH pom AS ( "
+            "SELECT "
+                "ROW_NUMBER() OVER (ORDER BY Message_ID DESC) AS ind, "
+                "Message_ID, "
+                "Sender_ID, "
+                "Content "
+            "FROM Messages "
+            "WHERE ((Sender_ID = ? AND Receiver_ID = ?) OR (Sender_ID = ? AND Receiver_ID = ?)) "
+        ") "
+        "SELECT "
+            "Message_ID, "
+            "Sender_ID, "
+            "Content "
+        "FROM pom "
+        "WHERE ind > ( "
+            "SELECT ind AS x "
+            "FROM pom "
+            "WHERE Message_ID = ?"
+        ") "
+        "ORDER BY ind "
+        "LIMIT ?;"
     );
     query.bind(1, askerID);
     query.bind(2, interlocutor_id);
-    query.bind(3, lower_bound);
-    query.bind(4, higher_bound);
+    query.bind(3, interlocutor_id);
+    query.bind(4, askerID);
+    query.bind(5, last_message_id);
+    query.bind(6, static_cast<std::int64_t>(amount));
 
     std::vector<Message> messages;
+    std::vector<std::int64_t> authors;
     while (query.executeStep()){
-        messages.push_back({
+        messages.emplace_back(
             query.getColumn(0).getInt64(),
-            query.getColumn(1).getText(),
+            query.getColumn(2).getText(),
             true
-        });
+        );
     }
-
-
-    SQLite::Statement query2(
-        db,
-        "SELECT Message_ID, Content "
-        "FROM Messages "
-        "WHERE (Receiver_ID = ?) AND (Sender_ID = ?) AND (Message_ID BETWEEN ? AND ?);"
-    );
-    query2.bind(1, askerID);
-    query2.bind(2, interlocutor_id);
-    query2.bind(3, lower_bound);
-    query2.bind(4, higher_bound);
-    while (query2.executeStep()){
-        messages.push_back({
-            query2.getColumn(0).getInt64(),
-            query2.getColumn(1).getText(),
-            false
-        });
-    }
-    std::sort(
-        messages.begin(),
-        messages.end(),
-        [](const Message &mess1, const Message &mess2){
-            return mess1.message_id < mess2.message_id;
+    for (int i = 0; i < authors.size(); ++i) {
+        if (authors[i] != askerID) {
+            messages[i].outgoing = false;
         }
-    );
+    }
     return messages;
 }
 
@@ -213,12 +209,13 @@ std::vector<Message> Database::get_latest_messages(std::int64_t askerID, std::in
         }
     }
 
-    std::ranges::sort(
-        messages,
-        [](const Message &mess1, const Message &mess2){
-            return mess1.message_id > mess2.message_id;
-        }
-    );
+     std::ranges::sort(
+         messages,
+         [](const Message &mess1, const Message &mess2){
+             return mess1.message_id > mess2.message_id;
+         }
+     );
+    // todo: this can be removed?
     return messages;
 
 }

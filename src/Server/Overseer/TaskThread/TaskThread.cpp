@@ -54,6 +54,10 @@ std::optional<std::vector<TaskOutgoing>> TaskManager::processTasks() {
             std::printf("Getting latest messages by name [processTasks]\n");
             res = processGetLatestMessagesByName(task);
         }
+        else if (task.information.opcode == GET_FURTHER_MESSAGES_BY_NAME) {
+            std::printf("Getting further messages by name [processTasks]\n");
+            res = processGetFurtherMessagesByName(task);
+        }
         else {
             throw std::runtime_error("unknown opcode");
         }
@@ -170,8 +174,37 @@ std::optional<TaskOutgoing> TaskManager::processGetLatestMessagesByName(const Ta
         res.information.append_val(message.content);
     }
     return res;
+}
+
+std::optional<TaskOutgoing> TaskManager::processGetFurtherMessagesByName(const TaskIncoming &task) {
+    std::string recipient = std::get<std::string>(task.information.data[0]);
+    ID_t lastMessageId = std::get<ID_t>(task.information.data[1]);
+    int64_t authorID = *task.author.userId;
+    int64_t recipientId = db.find_user_id(recipient);
+
+    std::println(std::cout, "Last message id: {} [processGetFurtherMessagesByName]", lastMessageId);
+
+    std::vector<Message> mess = db.get_message_batch(authorID, recipientId, lastMessageId);
+
+    std::println(std::cout, "Number of messages: {} [processGetFurtherMessagesByName]", mess.size());
 
 
+    TaskOutgoing res;
+    ClientData data = task.author;
+    res.recipients.push_back(std::move(data));
+
+    res.information.opcode = RELAY_FURTHER_MESSAGES_BY_NAME;
+    res.information.append_val(recipient);
+    res.information.append_val(static_cast<std::uint16_t>(mess.size()));
+    for (const auto &message: mess) {
+        std::println(std::cout, "Message ID: {} [processGetFurtherMessagesByName]", static_cast<ID_t>(message.message_id));
+        std::println(std::cout, "Message author bool: {} [processGetFurtherMessagesByName]", static_cast<Byte>(message.outgoing));
+        std::println(std::cout, "Message content: {} [processGetFurtherMessagesByName]", message.content);
+        res.information.append_val(static_cast<ID_t>(message.message_id));
+        res.information.append_val(static_cast<Byte>(message.outgoing));
+        res.information.append_val(message.content);
+    }
+    return res;
 }
 
 

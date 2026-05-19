@@ -31,6 +31,10 @@ public:
 
 
 private:
+    std::optional<std::shared_ptr<Client>> getClient(const ClientData &client);
+    void removeClient(const ClientData &client);
+
+
     void wakeup();
 
     std::optional<InformationUnit> handleClient(std::shared_ptr<Client> client, const epoll_event &ev);

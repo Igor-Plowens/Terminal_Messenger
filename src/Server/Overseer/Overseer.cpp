@@ -18,7 +18,7 @@ void Overseer::networkLoop() {
         if (!tasks.has_value()) {
             return;
         }
-        taskManager.assignTasks(std::move(*tasks));
+        if (!(*tasks).empty()) taskManager.assignTasks(std::move(*tasks));
     }
 }
 

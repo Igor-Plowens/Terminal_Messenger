@@ -23,6 +23,7 @@ private:
     std::optional<TaskOutgoing> processRegister(const TaskIncoming &task);
     std::optional<TaskOutgoing> processSendMessageByName(const TaskIncoming &task);
     std::optional<TaskOutgoing> processGetLatestMessagesByName(const TaskIncoming &task);
+    std::optional<TaskOutgoing> processGetFurtherMessagesByName(const TaskIncoming &task);
     //std::optional<TaskOutgoing> processGetFurtherMessages(const TaskIncoming &task); todo:
     //std::optional<TaskOutgoing> processGetLatestMessages(const TaskIncoming &task);
 
